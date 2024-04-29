@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { firestore } from '../firebase';
-import { auth } from '../firebase';
+import { collection, onSnapshot,addDoc } from 'firebase/firestore';
+import { auth, firestore } from '../firebase';
 import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+
 
 const User = () => {
   const [posts, setPosts] = useState([]);
   const [authors, setAuthors] = useState([]);
 
   useEffect(() => {
-    // Fetch blog posts from Firestore
-    const unsubscribePosts = firestore.collection('posts').onSnapshot((snapshot) => {
+    const unsubscribePosts = onSnapshot(collection(firestore, 'posts'), (snapshot) => {
       setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-
-    // Fetch authors from Firestore
-    const unsubscribeAuthors = firestore
-      .collection('users')
-      .where('role', '==', 'author')
-      .onSnapshot((snapshot) => {
-        setAuthors(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
-
-    // Cleanup function to unsubscribe from Firestore listeners
+    const unsubscribeAuthors = onSnapshot(
+      collection(firestore, 'users'),
+      (snapshot) => {
+        setAuthors(
+          snapshot.docs
+            .filter((doc) => doc.data().role === 'author')
+            .map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      }
+    );
     return () => {
       unsubscribePosts();
       unsubscribeAuthors();
@@ -31,11 +30,10 @@ const User = () => {
 
   const sendConnectionRequest = async (authorId) => {
     try {
-      // Send a connection request to the author
-      await firestore.collection('connectionRequests').add({
+      await addDoc(collection(firestore, 'connectionRequests'), {
         userId: auth.currentUser.uid,
         authorId,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Use the firebase.firestore.FieldValue.serverTimestamp() method
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`Connection request sent to author with ID ${authorId}`);
     } catch (error) {
@@ -50,10 +48,21 @@ const User = () => {
         <div key={post.id}>
           <h3>{post.title}</h3>
           <p>{post.content}</p>
+          {post.imageURL && <img src={post.imageURL} alt="Post" />}
+          {post.fileURL && (
+            <a href={post.fileURL} target="_blank" rel="noopener noreferrer">
+              View File
+            </a>
+          )}
+          {post.videoURL && (
+            <video controls>
+              <source src={post.videoURL} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
           <p>Author: {post.author}</p>
         </div>
       ))}
-
       <h2>Authors</h2>
       {authors.map((author) => (
         <div key={author.id}>

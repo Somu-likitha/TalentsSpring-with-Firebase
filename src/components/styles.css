@@ -1,0 +1,124 @@
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  }
+  
+  .auth-input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+  }
+  
+  .auth-btn {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .auth-btn:hover {
+    background-color: #0056b3;
+  }
+
+
+
+
+
+  /*  styles for navigation bar */
+
+.nav {
+    background-color: #333;
+    padding: 1rem;
+  }
+  
+  .nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav a:hover {
+    background-color: #555;
+  }
+  
+  .home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 4rem);
+  }
+
+
+
+  /* ... (existing styles) */
+
+.user-favicon-container {
+    position: relative;
+    margin-left: auto;
+  }
+  
+  .user-favicon {
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+  }
+  
+  .profile-details {
+    margin-bottom: 0.5rem;
+  }
+  
+  .dropdown-menu button {
+    color: #333;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
+  }
+  
+  .dropdown-menu button:hover {
+    background-color: #f5f5f5;
+  }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { auth, firestore } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './styles.css';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -15,8 +16,6 @@ const SignIn = () => {
       const { role } = userDoc.data();
       await user.updateProfile({ role });
       console.log('User signed in successfully!');
-
-      // Navigate to the appropriate page based on user's role
       if (role === 'author') {
         navigate('/author');
       } else {
@@ -28,23 +27,30 @@ const SignIn = () => {
   };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Sign In</h2>
-      <form onSubmit={handleSignIn}>
+      <form onSubmit={handleSignIn} className="auth-form">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="auth-input"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="auth-input"
         />
-        <button type="submit">Sign In</button>
+        <button type="submit" className="auth-btn">
+          Sign In
+        </button>
       </form>
+      <p>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
+      </p>
     </div>
   );
 };

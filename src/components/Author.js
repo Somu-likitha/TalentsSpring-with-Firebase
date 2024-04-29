@@ -1,99 +1,70 @@
 import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot, query, where, addDoc } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
 import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import CreatePost from './CreatePost';
 
 const Author = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [posts, setPosts] = useState([]);
-  const [connectionRequests, setConnectionRequests] = useState([]);
+  const [authors, setAuthors] = useState([]);
 
   useEffect(() => {
-    // Fetch posts authored by the current user
-    const unsubscribePosts = firestore
-      .collection('posts')
-      .where('author', '==', auth.currentUser.email)
-      .onSnapshot((snapshot) => {
-        setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
-
-    // Fetch connection requests for the current user
-    const unsubscribeConnectionRequests = firestore
-      .collection('connectionRequests')
-      .where('authorId', '==', auth.currentUser.uid)
-      .onSnapshot((snapshot) => {
-        setConnectionRequests(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
-
-    // Cleanup function to unsubscribe from Firestore listeners
+    const unsubscribePosts = onSnapshot(collection(firestore, 'posts'), (snapshot) => {
+      setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    });
+    const unsubscribeAuthors = onSnapshot(
+      query(collection(firestore, 'users'), where('role', '==', 'author')),
+      (snapshot) => {
+        setAuthors(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      }
+    );
     return () => {
       unsubscribePosts();
-      unsubscribeConnectionRequests();
+      unsubscribeAuthors();
     };
   }, []);
 
-  const createPost = async (e) => {
-    e.preventDefault();
+  const sendConnectionRequest = async (authorId) => {
     try {
-      await firestore.collection('posts').add({
-        title,
-        content,
-        author: auth.currentUser.email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Use the firebase.firestore.FieldValue.serverTimestamp() method
+      await addDoc(collection(firestore, 'connectionRequests'), {
+        userId: auth.currentUser.uid,
+        authorId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
-      setTitle('');
-      setContent('');
-      console.log('Post created successfully!');
+      console.log(`Connection request sent to author with ID ${authorId}`);
     } catch (error) {
-      console.error('Error creating post:', error);
-    }
-  };
-
-  const acceptConnectionRequest = async (requestId) => {
-    try {
-      // Accept the connection request
-      await firestore.collection('connectionRequests').doc(requestId).update({
-        accepted: true,
-        acceptedAt: firebase.firestore.FieldValue.serverTimestamp(), // Use the firebase.firestore.FieldValue.serverTimestamp() method
-      });
-      console.log(`Connection request with ID ${requestId} accepted`);
-    } catch (error) {
-      console.error('Error accepting connection request:', error);
+      console.error('Error sending connection request:', error);
     }
   };
 
   return (
     <div>
-      <h2>Create Post</h2>
-      <form onSubmit={createPost}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        ></textarea>
-        <button type="submit">Create Post</button>
-      </form>
-
-      <h2>My Posts</h2>
+      <CreatePost />
+      <h2>Blog Posts</h2>
       {posts.map((post) => (
         <div key={post.id}>
           <h3>{post.title}</h3>
           <p>{post.content}</p>
+          {post.imageURL && <img src={post.imageURL} alt="Post" />}
+          {post.fileURL && (
+            <a href={post.fileURL} target="_blank" rel="noopener noreferrer">
+              View File
+            </a>
+          )}
+          {post.videoURL && (
+            <video controls>
+              <source src={post.videoURL} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
+          <p>Author: {post.author}</p>
         </div>
       ))}
-
-      <h2>Connection Requests</h2>
-      {connectionRequests.map((request) => (
-        <div key={request.id}>
-          <p>From: {request.userId}</p>
-          <button onClick={() => acceptConnectionRequest(request.id)}>Accept</button>
+      <h2>Authors</h2>
+      {authors.map((author) => (
+        <div key={author.id}>
+          <p>{author.email}</p>
+          <button onClick={() => sendConnectionRequest(author.id)}>Connect</button>
         </div>
       ))}
     </div>

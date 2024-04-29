@@ -5,6 +5,8 @@ import SignIn from './components/SignIn';
 import User from './components/User';
 import Author from './components/Author';
 import { auth, firestore } from './firebase';
+import RootLayout from './RootLayout'
+import Home from './components/Home';
 
 const App = () => {
   const [user1, setUser] = useState(null);
@@ -37,7 +39,16 @@ const App = () => {
   };
 
   const router = createBrowserRouter([
+
     {
+      path: '',
+      element: <RootLayout />,
+      children:[
+        {
+          path: '',
+          element: <Home />,
+        },
+      {
       path: '/signup',
       element: <SignUp />,
     },
@@ -57,6 +68,8 @@ const App = () => {
       path: '*',
       element: <Navigate to="/signin" replace />,
     },
+  ],
+}
   ]);
 
   return <RouterProvider router={router} />;
