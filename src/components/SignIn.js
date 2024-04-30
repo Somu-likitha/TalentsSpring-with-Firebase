@@ -8,6 +8,23 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  // const handleSignIn = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const { user } = await auth.signInWithEmailAndPassword(email, password);
+  //     const userDoc = await firestore.collection('users').doc(user.uid).get();
+  //     const { role } = userDoc.data();
+  //     await user.updateProfile({ role });
+  //     console.log('User signed in successfully!');
+  //     if (role === 'author') {
+  //       navigate('/author');
+  //     } else {
+  //       navigate('/user');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error signing in:', error);
+  //   }
+  // };
   const handleSignIn = async (e) => {
     e.preventDefault();
     try {
@@ -19,7 +36,7 @@ const SignIn = () => {
       if (role === 'author') {
         navigate('/author');
       } else {
-        navigate('/user');
+        navigate('/profession'); // Navigate to the Profession component
       }
     } catch (error) {
       console.error('Error signing in:', error);
