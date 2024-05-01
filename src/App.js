@@ -8,7 +8,8 @@ import { auth, firestore } from './firebase';
 import RootLayout from './RootLayout'
 import Home from './components/Home';
 import Profession from './components/Profession'
-
+import CreatePost from './components/CreatePost';
+import EditPost from './components/EditPost'
 const App = () => {
   const [user1, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +57,14 @@ const App = () => {
     {
       path: '/signin',
       element: <SignIn />,
+    },
+    {
+      path: '/createpost',
+      element: <CreatePost />,
+    },
+    {
+      path: '/edit-post/:id',
+      element: <EditPost />,
     },
     {
       path: '/user',

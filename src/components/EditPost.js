@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { doc, updateDoc } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
 import { uploadFile } from '../firebase.storage';
+import CreatePost from './CreatePost';
 
-const CreatePost = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
-  const [file, setFile] = useState(null);
-  const [video, setVideo] = useState(null);
-  const [profession, setProfession] = useState('');
+const EditPost = () => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const [title, setTitle] = useState(state?.title || '');
+  const [content, setContent] = useState(state?.content || '');
+  const [image, setImage] = useState(state?.imageURL || null);
+  const [file, setFile] = useState(state?.fileURL || null);
+  const [video, setVideo] = useState(state?.videoURL || null);
+  const [profession, setProfession] = useState(state?.profession || '');
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -51,7 +54,7 @@ const CreatePost = () => {
     const fileURL = file ? await uploadFile(file) : null;
     const videoURL = video ? await uploadFile(video) : null;
 
-    await firestore.collection('posts').add({
+    const postData = {
       title,
       content,
       author: auth.currentUser.email,
@@ -59,20 +62,16 @@ const CreatePost = () => {
       fileURL,
       videoURL,
       profession,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
+    };
 
-    setTitle('');
-    setContent('');
-    setImage(null);
-    setFile(null);
-    setVideo(null);
-    setProfession('');
+    await updateDoc(doc(firestore, 'posts', state.id), postData);
+
+    navigate('/author');
   };
 
   return (
     <div>
-      <h2>Create Post</h2>
+      <h2>Edit Post</h2>
       <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title:</label>
         <input
@@ -124,10 +123,10 @@ const CreatePost = () => {
           <option value="hardware">Hardware</option>
         </select>
         <br />
-        <button type="submit">Create Post</button>
+        <button type="submit">Update Post</button>
       </form>
     </div>
   );
 };
 
-export default CreatePost;
+export default EditPost;
