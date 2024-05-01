@@ -1,124 +1,141 @@
 .auth-container {
-    display: flex;
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: rgb(46,166,234);
+background: radial-gradient(circle, rgba(46,166,234,1) 0%, rgba(198,91,176,1) 100%);
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-container > div {
+  max-width: 500px;
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  height: 70vh;
+  align-items: center;
+}
+
+.left-side {
+  width: 50%;
+  padding: 2rem;
+  background-color: #f7f1f4;
+  color: white;
+  border-radius: 1rem 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Added a new class for the image container */
+.left-side .image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Styles for the image */
+.left-side .image-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.right-side {
+  width: 50%;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 0 1rem 1rem 0;
+  align-items: center;
+  text-align: center;
+}
+
+/* Removed redundant styles */
+.right-side h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6d28d9;
+  margin-bottom: 1rem;
+}
+
+.right-side .relative input {
+  padding-left: 2.5rem;
+  border: 1px solid #6d28d9;
+  border-radius: 9999px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-right: 1rem;
+}
+
+.right-side .absolute {
+  left: 0;
+  margin-left: 0.5rem;
+  color: #6d28d9;
+}
+
+.right-side button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
+  color: white;
+  background-color: #6d28d9;
+  border-radius: 9999px;
+  font-weight: bold;
+}
+
+.right-side button[type="submit"]:hover {
+  background-color: #5a21b2;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f5f5f5;
   }
-  
-  .auth-form {
-    display: flex;
+
+  .auth-container > div {
     flex-direction: column;
-    gap: 1rem;
-    padding: 2rem;
-    background-color: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-  }
-  
-  .auth-input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-  }
-  
-  .auth-btn {
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .auth-btn:hover {
-    background-color: #0056b3;
-  }
-
-
-
-
-
-  /*  styles for navigation bar */
-
-.nav {
-    background-color: #333;
-    padding: 1rem;
-  }
-  
-  .nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-  }
-  
-  .nav a {
-    color: #fff;
-    text-decoration: none;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .nav a:hover {
-    background-color: #555;
-  }
-  
-  .home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: calc(100vh - 4rem);
-  }
-
-
-
-  /* ... (existing styles) */
-
-.user-favicon-container {
-    position: relative;
-    margin-left: auto;
-  }
-  
-  .user-favicon {
-    color: #fff;
-    cursor: pointer;
-  }
-  
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    z-index: 1;
-  }
-  
-  .profile-details {
-    margin-bottom: 0.5rem;
-  }
-  
-  .dropdown-menu button {
-    color: #333;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    text-align: left;
+    max-width: 800px;
     width: 100%;
+    height: auto;
   }
-  
-  .dropdown-menu button:hover {
-    background-color: #f5f5f5;
+
+  .left-side,
+  .right-side {
+    width: 100%;
+    border-radius: 0;
   }
+
+  .left-side {
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .right-side {
+    border-radius: 0 0 1rem 1rem;
+  }
+}
+
+/* Removed redundant styles */
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-right: 1rem;
+  width: 150px;
+  text-align: right;
+}
+
+.auth-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+}
