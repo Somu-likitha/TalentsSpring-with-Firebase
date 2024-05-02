@@ -4,11 +4,13 @@ import { auth, firestore } from '../firebase';
 import CreatePost from './CreatePost';
 import { Navigate, useNavigate } from 'react-router-dom';
 //import EditPost from './EditPost';
+import CreatePostPage from './CreatePostPage';
 
 const Author = () => {
   const [posts, setPosts] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const unsubscribePosts = () => {
@@ -40,14 +42,20 @@ const Author = () => {
     }
   };
 
+  const handleCreatePost = () => {
+    navigate('/create-post'); // Navigate to the /create-post route
+  };
+
   // Check if the user is authenticated
   if (!auth.currentUser) {
     return <Navigate to="/signin" />;
   }
 
+ 
+
   return (
     <div>
-      <button onClick={toggleCreateModal}>Create Post</button>
+      <button onClick={handleCreatePost}>Create Post</button>
       {showCreateModal && <CreatePost onClose={toggleCreateModal} />}
       <h2>Your Blog Posts</h2>
       {posts.map((post) => (

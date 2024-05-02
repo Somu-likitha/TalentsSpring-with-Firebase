@@ -10,6 +10,7 @@ import Home from './components/Home';
 import Profession from './components/Profession'
 import CreatePost from './components/CreatePost';
 import EditPost from './components/EditPost'
+import CreatePostPage from './components/CreatePostPage';
 const App = () => {
   const [user1, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,9 +37,21 @@ const App = () => {
     return <div>Loading...</div>;
   }
 
-  const PrivateRoute = ({ component: Component, role }) => {
+  /* const PrivateRoute = ({ component: Component, role }) => {
     return userRole === role ? <Component /> : <Navigate to="/signin" replace />;
-  };
+  }; */
+
+  const PrivateRoute = ({ component: Component, role }) => {
+  const isAuthenticated = user1 && userRole === role;
+
+  // If the user is not authenticated, redirect to the sign-in page
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // If the user is authenticated, render the component
+  return <Component />;
+};
 
   const router = createBrowserRouter([
 
@@ -63,6 +76,10 @@ const App = () => {
       element: <CreatePost />,
     },
     {
+      path: '/create-post',
+      element: <CreatePostPage />,
+    },
+    {
       path: '/edit-post/:id',
       element: <EditPost />,
     },
@@ -75,10 +92,10 @@ const App = () => {
       element: <PrivateRoute component={Author} role="author" />,
     },
     { path: '/profession', element: <Profession /> },
-    {
-      path: '*',
-      element: <Navigate to="/signin" replace />,
-    },
+    // {
+    //   path: '*',
+    //   element: <Navigate to='/home' replace />,
+    // },
   ],
 }
   ]);
