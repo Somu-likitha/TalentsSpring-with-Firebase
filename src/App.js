@@ -10,7 +10,9 @@ import Home from './components/Home';
 import Profession from './components/Profession'
 import CreatePost from './components/CreatePost';
 import EditPost from './components/EditPost'
-import CreatePostPage from './components/CreatePostPage';
+//import CreatePostPage from './components/CreatePostPage';
+import ViewAuthorPosts from './components/ViewAuthorPosts';
+import ViewPost from './components/ViewPost';
 const App = () => {
   const [user1, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,10 +77,10 @@ const App = () => {
       path: '/createpost',
       element: <CreatePost />,
     },
-    {
-      path: '/create-post',
-      element: <CreatePostPage />,
-    },
+    // {
+    //   path: '/create-post',
+    //   element: <CreatePostPage />,
+    // },
     {
       path: '/edit-post/:id',
       element: <EditPost />,
@@ -92,6 +94,8 @@ const App = () => {
       element: <PrivateRoute component={Author} role="author" />,
     },
     { path: '/profession', element: <Profession /> },
+    { path: '/view-author-posts', element: <ViewAuthorPosts /> }, 
+    { path: '/view-post/:postId', element: <ViewPost /> },
     // {
     //   path: '*',
     //   element: <Navigate to='/home' replace />,

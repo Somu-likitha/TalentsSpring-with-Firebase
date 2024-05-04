@@ -1,30 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
 import CreatePost from './CreatePost';
-import { Navigate, useNavigate } from 'react-router-dom';
-//import EditPost from './EditPost';
-import CreatePostPage from './CreatePostPage';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 
 const Author = () => {
-  const [posts, setPosts] = useState([]);
+  const [authorPosts, setAuthorPosts] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
-    const unsubscribePosts = () => {
+    const unsubscribeAuthorPosts = () => {
       if (auth.currentUser) {
         const q = query(
           collection(firestore, 'posts'),
           where('author', '==', auth.currentUser.email)
         );
-        return onSnapshot(q, (snapshot) => {
-          setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
+          const postsWithAuthorData = await Promise.all(
+            snapshot.docs.map(async (doc) => {
+              const postData = doc.data();
+              const authorEmail = postData.author;
+              const authorQuery = query(collection(firestore, 'users'), where('email', '==', authorEmail));
+              const authorSnapshot = await getDocs(authorQuery);
+              const authorData = authorSnapshot.docs[0]?.data();
+              return {
+                id: doc.id,
+                ...postData,
+                authorUsername: authorData?.username || 'Anonymous',
+                createdAt: postData.createdAt ? postData.createdAt.toDate() : null,
+              };
+            })
+          );
+          setAuthorPosts(postsWithAuthorData);
         });
+        return unsubscribe;
       }
     };
-    const unsubscribe = unsubscribePosts();
+
+    const unsubscribe = unsubscribeAuthorPosts();
     return unsubscribe;
   }, []);
 
@@ -42,43 +56,26 @@ const Author = () => {
     }
   };
 
-  const handleCreatePost = () => {
-    navigate('/create-post'); // Navigate to the /create-post route
-  };
-
   // Check if the user is authenticated
   if (!auth.currentUser) {
     return <Navigate to="/signin" />;
   }
 
- 
-
   return (
     <div>
-      <button onClick={handleCreatePost}>Create Post</button>
+      <button onClick={toggleCreateModal}>Create Post</button>
       {showCreateModal && <CreatePost onClose={toggleCreateModal} />}
-      <h2>Your Blog Posts</h2>
-      {posts.map((post) => (
-        <div key={post.id}>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-          {post.imageURL && <img src={post.imageURL} alt="Post" />}
-          {post.fileURL && (
-            <a href={post.fileURL} target="_blank" rel="noopener noreferrer">
-              View File
-            </a>
-          )}
-          {post.videoURL && (
-            <video controls>
-              <source src={post.videoURL} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          )}
+      {authorPosts.map((post) => (
+        <div key={post.id} className="post-card">
+          <h3>Profession: {post.profession}</h3>
+          <p>Author: {post.authorUsername}</p>
+          <p>Date: {post.createdAt ? post.createdAt.toDateString() : 'N/A'}</p>
+          <h4>{post.title}</h4>
+          <Link to={`/view-post/${post.id}?profession=${post.profession}`}>View Post</Link>
           <button onClick={() => handleEditPost(post)}>Edit</button>
           <button onClick={() => handleDeletePost(post.id)}>Delete</button>
         </div>
       ))}
-      {/* <EditPost /> */}
     </div>
   );
 };

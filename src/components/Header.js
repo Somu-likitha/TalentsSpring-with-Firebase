@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { auth, firestore } from '../firebase';
 import UserFavicon from './UserFavicon';
 import AuthorFavicon from './AuthorFavicon';
-import './style1header.css'
+import './styles/style1header.css'
 
 function Header() {
     const [user1, setUser] = useState(null);

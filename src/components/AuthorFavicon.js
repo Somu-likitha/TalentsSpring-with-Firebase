@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 //import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
-import './AuthorFavicon.css';
+import './styles/AuthorFavicon.css';
 import ProfileDetails1 from './ProfileDetails1';
-import Notifications from './Notification';
+import Notifications from './Notifications';
 
 const AuthorFavicon = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -47,7 +47,7 @@ const AuthorFavicon = () => {
         <div className="dropdown-menu">
           {userData && <ProfileDetails1 userData={userData} />}
           <Notifications authorId={auth.currentUser.uid} /> {/* Pass the authorId prop */}
-          <button onClick={handleLogout}>Logout</button>
+          <button className="logout-button" onClick={handleLogout}>Logout</button>
         </div>
       )}
     </div>

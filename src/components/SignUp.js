@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { auth, firestore } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
-import './styles.css';
+import './styles/styles.css';
 import signUpImage from './images/signUpImage.png';
 
 

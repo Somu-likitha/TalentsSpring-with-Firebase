@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import Header from './components/Header';
-
+import Footer from './components/Footer'
 const RootLayout = () => {
 
 
@@ -11,9 +11,7 @@ const RootLayout = () => {
       <main>
         <Outlet />
       </main>
-      <footer>
-        <p>&copy; Footer of My Website</p>
-      </footer>
+      <Footer/>
     </div>
   );
 };

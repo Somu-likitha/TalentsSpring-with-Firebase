@@ -3,13 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
 import { uploadFile } from '../firebase.storage';
-import CreatePost from './CreatePost';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const EditPost = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [title, setTitle] = useState(state?.title || '');
   const [content, setContent] = useState(state?.content || '');
+  const [contentFormatting, setContentFormatting] = useState(state?.contentFormatting || {});
   const [image, setImage] = useState(state?.imageURL || null);
   const [file, setFile] = useState(state?.fileURL || null);
   const [video, setVideo] = useState(state?.videoURL || null);
@@ -19,8 +21,20 @@ const EditPost = () => {
     setTitle(e.target.value);
   };
 
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
+  const handleContentChange = (value) => {
+    setContent(value);
+  };
+
+  const handleContentFormatting = (range, source, formats) => {
+    const newFormatting = { ...contentFormatting };
+
+    if (formats.color) {
+      newFormatting.color = formats.color;
+    } else {
+      delete newFormatting.color;
+    }
+
+    setContentFormatting(newFormatting);
   };
 
   const handleImageChange = (e) => {
@@ -57,6 +71,7 @@ const EditPost = () => {
     const postData = {
       title,
       content,
+      contentFormatting,
       author: auth.currentUser.email,
       imageURL,
       fileURL,
@@ -65,7 +80,6 @@ const EditPost = () => {
     };
 
     await updateDoc(doc(firestore, 'posts', state.id), postData);
-
     navigate('/author');
   };
 
@@ -83,11 +97,17 @@ const EditPost = () => {
         />
         <br />
         <label htmlFor="content">Content:</label>
-        <textarea
+        <ReactQuill
           id="content"
           value={content}
           onChange={handleContentChange}
-          rows="10"
+          onChangeSelection={handleContentFormatting}
+          modules={{
+            toolbar: [
+              [{ color: [] }],
+            ],
+          }}
+          formats={['color']}
         />
         <br />
         <label htmlFor="image">Image:</label>
@@ -117,6 +137,7 @@ const EditPost = () => {
         >
           <option value="">Select Profession</option>
           <option value="household">Household</option>
+          <option value="arts">Arts</option>
           <option value="banking">Banking</option>
           <option value="government">Government</option>
           <option value="software">Software</option>
