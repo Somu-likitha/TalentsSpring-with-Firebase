@@ -1,99 +1,79 @@
 import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot, query, where, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { auth, firestore } from '../firebase';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import CreatePost from './CreatePost';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 
 const Author = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [posts, setPosts] = useState([]);
-  const [connectionRequests, setConnectionRequests] = useState([]);
+  const [authorPosts, setAuthorPosts] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch posts authored by the current user
-    const unsubscribePosts = firestore
-      .collection('posts')
-      .where('author', '==', auth.currentUser.email)
-      .onSnapshot((snapshot) => {
-        setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
-
-    // Fetch connection requests for the current user
-    const unsubscribeConnectionRequests = firestore
-      .collection('connectionRequests')
-      .where('authorId', '==', auth.currentUser.uid)
-      .onSnapshot((snapshot) => {
-        setConnectionRequests(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      });
-
-    // Cleanup function to unsubscribe from Firestore listeners
-    return () => {
-      unsubscribePosts();
-      unsubscribeConnectionRequests();
+    const unsubscribeAuthorPosts = () => {
+      if (auth.currentUser) {
+        const q = query(
+          collection(firestore, 'posts'),
+          where('author', '==', auth.currentUser.email)
+        );
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
+          const postsWithAuthorData = await Promise.all(
+            snapshot.docs.map(async (doc) => {
+              const postData = doc.data();
+              const authorEmail = postData.author;
+              const authorQuery = query(collection(firestore, 'users'), where('email', '==', authorEmail));
+              const authorSnapshot = await getDocs(authorQuery);
+              const authorData = authorSnapshot.docs[0]?.data();
+              return {
+                id: doc.id,
+                ...postData,
+                authorUsername: authorData?.username || 'Anonymous',
+                createdAt: postData.createdAt ? postData.createdAt.toDate() : null,
+              };
+            })
+          );
+          setAuthorPosts(postsWithAuthorData);
+        });
+        return unsubscribe;
+      }
     };
+
+    const unsubscribe = unsubscribeAuthorPosts();
+    return unsubscribe;
   }, []);
 
-  const createPost = async (e) => {
-    e.preventDefault();
-    try {
-      await firestore.collection('posts').add({
-        title,
-        content,
-        author: auth.currentUser.email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Use the firebase.firestore.FieldValue.serverTimestamp() method
-      });
-      setTitle('');
-      setContent('');
-      console.log('Post created successfully!');
-    } catch (error) {
-      console.error('Error creating post:', error);
+  const toggleCreateModal = () => {
+    setShowCreateModal(!showCreateModal);
+  };
+
+  const handleEditPost = (post) => {
+    navigate(`/edit-post/${post.id}`, { state: post });
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      await deleteDoc(doc(firestore, 'posts', postId));
     }
   };
 
-  const acceptConnectionRequest = async (requestId) => {
-    try {
-      // Accept the connection request
-      await firestore.collection('connectionRequests').doc(requestId).update({
-        accepted: true,
-        acceptedAt: firebase.firestore.FieldValue.serverTimestamp(), // Use the firebase.firestore.FieldValue.serverTimestamp() method
-      });
-      console.log(`Connection request with ID ${requestId} accepted`);
-    } catch (error) {
-      console.error('Error accepting connection request:', error);
-    }
-  };
+  // Check if the user is authenticated
+  if (!auth.currentUser) {
+    return <Navigate to="/signin" />;
+  }
 
   return (
     <div>
-      <h2>Create Post</h2>
-      <form onSubmit={createPost}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        ></textarea>
-        <button type="submit">Create Post</button>
-      </form>
-
-      <h2>My Posts</h2>
-      {posts.map((post) => (
-        <div key={post.id}>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-        </div>
-      ))}
-
-      <h2>Connection Requests</h2>
-      {connectionRequests.map((request) => (
-        <div key={request.id}>
-          <p>From: {request.userId}</p>
-          <button onClick={() => acceptConnectionRequest(request.id)}>Accept</button>
+      <button onClick={toggleCreateModal}>Create Post</button>
+      {showCreateModal && <CreatePost onClose={toggleCreateModal} />}
+      {authorPosts.map((post) => (
+        <div key={post.id} className="post-card">
+          <h3>Profession: {post.profession}</h3>
+          <p>Author: {post.authorUsername}</p>
+          <p>Date: {post.createdAt ? post.createdAt.toDateString() : 'N/A'}</p>
+          <h4>{post.title}</h4>
+          <Link to={`/view-post/${post.id}?profession=${post.profession}`}>View Post</Link>
+          <button onClick={() => handleEditPost(post)}>Edit</button>
+          <button onClick={() => handleDeletePost(post.id)}>Delete</button>
         </div>
       ))}
     </div>

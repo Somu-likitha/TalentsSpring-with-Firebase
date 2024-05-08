@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { auth, firestore } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './styles/styles.css';
+import SignInImage from './images/SignInImage.png';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -15,12 +17,10 @@ const SignIn = () => {
       const { role } = userDoc.data();
       await user.updateProfile({ role });
       console.log('User signed in successfully!');
-
-      // Navigate to the appropriate page based on user's role
       if (role === 'author') {
         navigate('/author');
       } else {
-        navigate('/user');
+        navigate('/profession');
       }
     } catch (error) {
       console.error('Error signing in:', error);
@@ -28,23 +28,48 @@ const SignIn = () => {
   };
 
   return (
-    <div>
-      <h2>Sign In</h2>
-      <form onSubmit={handleSignIn}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Sign In</button>
-      </form>
+    <div className="auth-container">
+      <div className="left-side">
+      <div className='image-container'>
+        <img src={SignInImage} alt="Sign Up"  />
+
+        </div>
+      </div>
+      <div className="right-side">
+        <div>
+          <h2>Sign In</h2>
+          <form onSubmit={handleSignIn} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+              />
+            </div>
+            <button type="submit" className="auth-btn">
+              Sign In
+            </button>
+          </form>
+          <p>
+            Don't have an account? <Link to="/signup">Sign Up</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
